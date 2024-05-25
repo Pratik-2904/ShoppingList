@@ -1,6 +1,7 @@
 package com.example.shoppinglist
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -34,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
@@ -65,14 +68,18 @@ fun ShoppingApp() {
         ) {
 //            Main button
             Button(
-                onClick = {
-                    statusAlertDialog = true
-                },
+                onClick = { statusAlertDialog = true },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
 
             ) {
                 Text(text = "New Item")
+//                //an unnamed function which executes and stores the data into the cariable
+//                // the double no is var of type int and lamda function is of INt type Saperated by the '->' which shows the implementation of lamda function for the variable
+//                val doubleNumber: (Int) -> Int = {
+//                    it*2
+//                }
 
+//                Text(doubleNumber.toString())
             }
 
 //            Column for list of Items
@@ -82,7 +89,7 @@ fun ShoppingApp() {
                     .padding(16.dp)
             ) {
                 items(sItems) {
-                    ShoppingListItem(it,{},{})
+                    ShoppingListItem(it, {}, {})
                 }
             }
         }
@@ -119,36 +126,32 @@ fun ShoppingApp() {
 
 
                     }
-                }
-
-                ,title = { Text(text = "Add Item") }
-                ,text = {
+                }, title = { Text(text = "Add Item") }, text = {
                     Column {
-                            OutlinedTextField(
-                                value = itemName,
-                                onValueChange = { itemName = it },
-                                singleLine = true,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp), label = { Text(text = "Item Name") }
+                        OutlinedTextField(
+                            value = itemName,
+                            onValueChange = { itemName = it },
+                            singleLine = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp), label = { Text(text = "Item Name") }
 
-                            )
+                        )
 
 
 
-                            OutlinedTextField(
-                                value = itemQuan,
-                                onValueChange = {
-                                    itemQuan = it
-                                }
-                                ,singleLine = true
-                                , modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp)
-                                , keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        OutlinedTextField(
+                            value = itemQuan,
+                            onValueChange = {
+                                itemQuan = it
+                            },
+                            singleLine = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
 
-                            )
-
+                        )
 
 
                     }
@@ -157,14 +160,14 @@ fun ShoppingApp() {
         }
 
 
-
-
     }
 }
+
 @Composable
 fun ShoppingListItem(
-    item:ShoppingItems,
-    onEditClick:  () -> Unit,
+    item: ShoppingItems,
+    //lamda expression without input and output
+    onEditClick: () -> Unit,
     onDeleteClick: () -> Unit  //lamda functions
 
 ) {
@@ -183,14 +186,14 @@ fun ShoppingListItem(
 
         Text(text = item.name, modifier = Modifier.padding(8.dp))
 
-        Text(text = item.quantity.toString(), modifier = Modifier.padding(8.dp))
+        Text(text = "Qty:${item.quantity}", modifier = Modifier.padding(8.dp))
 
         Row(
             modifier = Modifier.padding(8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
 
-            IconButton(onClick =  onEditClick) {
+            IconButton(onClick = onEditClick) {
                 Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
             }
 
@@ -202,4 +205,52 @@ fun ShoppingListItem(
     }
 }
 
+@Composable
+
+fun ShoppingItemsEditor(item: ShoppingItems, onEditComplete: (String, Int) -> Unit) {
+    var editedName by remember {
+        mutableStateOf(item.name)
+    }
+
+    var editedQuantity by remember {
+        mutableStateOf(item.quantity.toString())
+    }
+    var isEditing by remember {
+        mutableStateOf(item.isEditing)
+    }
+
+    Row (
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(8.dp)
+            ,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Column {
+            BasicTextField(value = editedName, onValueChange = {
+                editedName = it
+            },
+                singleLine = true,
+                modifier = Modifier.wrapContentSize(align = Alignment.Center)
+            )
+
+            BasicTextField(value = editedQuantity, onValueChange = {
+                editedQuantity = it
+            },
+                singleLine = true,
+                modifier = Modifier.wrapContentSize(align = Alignment.Center)
+            )
+        }
+        Button(onClick = {
+            isEditing = false
+            onEditComplete(editedName,editedQuantity.toIntOrNull() ?: 1)
+
+        }) {
+            Text(text = "Save")
+        }
+    }
+
+
+}
 
