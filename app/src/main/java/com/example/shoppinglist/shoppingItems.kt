@@ -4,9 +4,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,13 +21,14 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
+//import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+//import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,21 +37,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
 data class ShoppingItems(
     val id: Int,
-    val name: String,
+    var name: String,
     var quantity: Int,
     var isEditing: Boolean = false
 )
 
-//When usin gmore than one AlertDialog There is no need of following func
-@OptIn(ExperimentalMaterial3Api::class)
+//When using more than one AlertDialog There is no need of following func
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingApp() {
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -62,19 +63,22 @@ fun ShoppingApp() {
         var itemName by remember { mutableStateOf("Item") }
         var itemQuan by remember { mutableStateOf("1") }
 
+
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center
         ) {
+            Spacer(modifier = Modifier.padding(12.dp))
 //            Main button
+
             Button(
                 onClick = { statusAlertDialog = true },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
 
             ) {
                 Text(text = "New Item")
-//                //an unnamed function which executes and stores the data into the cariable
-//                // the double no is var of type int and lamda function is of INt type Saperated by the '->' which shows the implementation of lamda function for the variable
+//                //an unnamed function which executes and stores the data into the variable
+//                // the double no is var of type int and lambda function is of INt type Separated by the '->' which shows the implementation of lambda function for the variable
 //                val doubleNumber: (Int) -> Int = {
 //                    it*2
 //                }
@@ -89,7 +93,30 @@ fun ShoppingApp() {
                     .padding(16.dp)
             ) {
                 items(sItems) {
-                    ShoppingListItem(it, {}, {})
+//                    ShoppingListItem(it, {}, {})//demo
+                    item ->   //can give name to it like this or can use it directly
+                    if(item.isEditing){
+                        ShoppingItemsEditor(item = item, onEditComplete = {
+                            editedName,editedQuantity ->
+                            sItems = sItems.map{it.copy(isEditing = false)}
+                            val editedItem = sItems.find { it.id == item.id } //function used to find specific
+                            editedItem?.let {
+                                it.name = editedName
+                                it.quantity = editedQuantity
+                                
+                            }
+                        })
+                    }else{
+                        ShoppingListItem(item = item, onEditClick = {
+                            //finding out which item we are editing and changing
+                            sItems = sItems.map { it.copy(isEditing = it.id == item.id )}
+                        },
+                            onDeleteClick = {
+                                sItems = sItems - item
+                            })
+
+                    }
+                    
                 }
             }
         }
@@ -168,7 +195,7 @@ fun ShoppingListItem(
     item: ShoppingItems,
     //lamda expression without input and output
     onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit  //lamda functions
+    onDeleteClick: () -> Unit  //lambda functions
 
 ) {
     Row(
@@ -253,4 +280,16 @@ fun ShoppingItemsEditor(item: ShoppingItems, onEditComplete: (String, Int) -> Un
 
 
 }
+
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun TopBAR(title: String){
+//    TopAppBar(title = {
+//        Text(text = "Shopping Cart App")
+//
+//
+//    },
+//        )
+//}
+
 
